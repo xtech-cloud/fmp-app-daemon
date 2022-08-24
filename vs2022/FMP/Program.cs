@@ -13,7 +13,9 @@ var app = builder.Build();
 
 app.MapGet("/", () =>
 {
-    return "FMP";
+    return FMP.WorkerManager.GetStatus();
 });
 
+FMP.WorkerManager.Start();
 app.Run();
+FMP.WorkerManager.Stop();
