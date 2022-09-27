@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO.Compression;
 using System.Text;
 
 namespace FMP
@@ -139,8 +140,10 @@ namespace FMP
                 return;
             if (process_.HasExited)
                 return;
+            process_.CancelErrorRead();
+            process_.CancelOutputRead();
             process_.Close();
-            process_.Kill();
+            process_.Dispose();
         }
 
         private void handleOutputDataReceived(object _sender, DataReceivedEventArgs _args)
@@ -160,7 +163,6 @@ namespace FMP
                 errorQueue_.Dequeue();
             errorQueue_.Enqueue(_args.Data);
         }
-
     }
 
     public class WorkerManager
@@ -199,10 +201,32 @@ namespace FMP
 
         public static void Stop()
         {
-
             foreach (var worker in workers)
             {
                 worker.Stop();
+            }
+            workers.Clear();
+        }
+
+        public static void Restart()
+        {
+            Stop();
+            Start();
+        }
+
+        public static void Upgrade()
+        {
+            Stop();
+            string app_dir = Path.Combine(AppContext.BaseDirectory, "apps");
+            Directory.Delete(app_dir, true);
+            Directory.CreateDirectory(app_dir);
+
+            string dir = Path.Combine(AppContext.BaseDirectory, "upgrades");
+            if (!Directory.Exists(dir))
+                return;
+            foreach (var file in Directory.GetFiles(dir))
+            {
+                ZipFile.ExtractToDirectory(file, "./apps");
             }
         }
 
