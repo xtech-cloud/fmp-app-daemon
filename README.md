@@ -2,7 +2,7 @@
 
 ## Daemon (守护程序)
 
-- 将程序发布到vs2022/_publish文件夹
+- 运行vs2022/publish.bat
 - 在Dockerfile所在的路径，执行以下命令
   ```bash
   make docker
